@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard Educação Corporativa</title>
+
+<!-- Importa o CSS do Bootstrap 5, que facilita o design responsivo e a formatação visual -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<!-- Importa a biblioteca Chart.js, usada para criar gráficos interativos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  /* Importa a fonte Montserrat do Google Fonts para um visual mais moderno */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  /* Estilo básico do corpo da página */
+  body {
+    font-family: 'Montserrat', sans-serif; /* Fonte da página */
+    background: #f5f7fa; /* Cor de fundo clara e suave */
+    color: #212529; /* Cor padrão do texto */
+    margin: 0; /* Remove margem padrão do navegador */
+    padding: 0; /* Remove espaçamento interno */
+    min-height: 100vh; /* Altura mínima para ocupar toda a tela */
+    display: flex;
+    flex-direction: column; /* Organiza conteúdo em coluna */
+  }
+
+  /* Estilo do cabeçalho da página */
+  header {
+    background: #0d6efd; /* Azul do Bootstrap */
+    color: white; /* Texto branco */
+    padding: 20px 0; /* Espaçamento vertical */
+    text-align: center; /* Centraliza o texto */
+    font-weight: 700; /* Texto em negrito */
+    font-size: 1.8rem; /* Tamanho da fonte */
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.15); /* Sombra para dar profundidade */
+    position: sticky; /* Cabeçalho fica fixo ao rolar a página */
+    top: 0; /* Fixa no topo */
+    z-index: 10; /* Fica acima dos outros elementos */
+  }
+
+  /* Estilo principal do conteúdo */
+  main {
+    flex-grow: 1; /* Faz a área principal crescer para ocupar o espaço */
+    padding: 30px 20px; /* Espaçamento interno */
+    max-width: 1200px; /* Largura máxima para melhor leitura */
+    margin: 0 auto; /* Centraliza horizontalmente */
+  }
+
+  /* Container dos KPIs (indicadores principais) - usa grid para layout organizado */
+  .kpis-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Colunas flexíveis */
+    gap: 20px; /* Espaço entre os cards */
+    margin-bottom: 40px; /* Espaço abaixo */
+  }
+
+  /* Estilo individual dos cards dos KPIs */
+  .kpi-card {
+    background: white; /* Fundo branco para destaque */
+    border-radius: 12px; /* Cantos arredondados */
+    padding: 25px 20px; /* Espaçamento interno */
+    box-shadow: 0 6px 15px rgb(13 110 253 / 0.15); /* Sombra azulada suave */
+    display: flex;
+    flex-direction: column; /* Organiza itens em coluna */
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animação suave */
+    cursor: default; /* Cursor padrão, pois não é clicável */
+  }
+
+  /* Efeito quando passar o mouse sobre os KPIs */
+  .kpi-card:hover {
+    transform: translateY(-6px); /* Levanta levemente */
+    box-shadow: 0 12px 24px rgb(13 110 253 / 0.25); /* Sombra mais forte */
+  }
+
+  /* Número principal do KPI */
+  .kpi-number {
+    font-size: 2.8rem; /* Grande para destaque */
+    font-weight: 800; /* Negrito forte */
+    color: #0d6efd; /* Azul para destaque */
+  }
+
+  /* Texto descritivo do KPI */
+  .kpi-label {
+    margin-top: 8px; /* Espaço acima */
+    font-weight: 600; /* Negrito leve */
+    color: #495057; /* Cinza escuro */
+    text-align: center; /* Centraliza o texto */
+  }
+
+  /* Grid que organiza os gráficos em 2 colunas */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas iguais */
+    gap: 35px; /* Espaçamento entre os gráficos */
+    max-width: 100%; /* Não ultrapassa a largura da tela */
+  }
+
+  /* Ajuste para telas menores (tablet e celular) */
+  @media (max-width: 768px) {
+    .charts-grid {
+      grid-template-columns: 1fr; /* 1 coluna só para melhor leitura */
+      gap: 25px;
+    }
+  }
+
+  /* Estilo dos gráficos (canvas) */
+  canvas {
+    background: white; /* Fundo branco */
+    border-radius: 14px; /* Cantos arredondados */
+    padding: 25px; /* Espaçamento interno */
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.07); /* Sombra leve */
+    width: 100% !important; /* Ocupa 100% da coluna */
+    height: 320px !important; /* Altura fixa para uniformidade */
+    transition: transform 0.25s ease, box-shadow 0.25s ease; /* Animação suave */
+  }
+
+  /* Efeito hover nos gráficos */
+  canvas:hover {
+    transform: scale(1.04); /* Amplia um pouco */
+    box-shadow: 0 10px 30px rgb(13 110 253 / 0.3); /* Sombra azul mais forte */
+  }
+
+  /* Estilo do rodapé */
+  footer {
+    text-align: center; /* Centraliza o texto */
+    padding: 15px 10px; /* Espaçamento */
+    background: #e9ecef; /* Fundo cinza claro */
+    color: #6c757d; /* Texto cinza */
+    font-size: 0.9rem; /* Fonte menor */
+    font-weight: 500; /* Fonte média */
+    margin-top: 40px; /* Espaço acima */
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Cabeçalho fixo com o título da página -->
+<header>Dashboard Educação Corporativa</header>
+
+<!-- Conteúdo principal -->
+<main>
+
+  <!-- Seção dos KPIs com indicadores principais -->
+  <section class="kpis-container" aria-label="Indicadores principais">
+    <!-- Cada card representa um indicador diferente -->
+    <div class="kpi-card" tabindex="0">
+      <!-- Valor do indicador será atualizado dinamicamente pelo JavaScript -->
+      <div id="colaboradores" class="kpi-number" aria-live="polite">–</div>
+      <div class="kpi-label">Colaboradores Treinados</div>
+    </div>
+
+    <div class="kpi-card" tabindex="0">
+      <div id="treinamentos" class="kpi-number" aria-live="polite">–</div>
+      <div class="kpi-label">Treinamentos Oferecidos</div>
+    </div>
+
+    <div class="kpi-card" tabindex="0">
+      <div id="horas" class="kpi-number" aria-live="polite">–</div>
+      <div class="kpi-label">Horas por Colaborador</div>
+    </div>
+
+    <div class="kpi-card" tabindex="0">
+      <div id="conclusao" class="kpi-number" aria-live="polite">–</div>
+      <div class="kpi-label">Taxa de Conclusão (%)</div>
+    </div>
+
+    <div class="kpi-card" tabindex="0">
+      <div id="nps" class="kpi-number" aria-live="polite">–</div>
+      <div class="kpi-label">NPS do Treinamento</div>
+    </div>
+
+    <div class="kpi-card" tabindex="0">
+      <div id="orcamento" class="kpi-number" aria-live="polite">–</div>
+      <div class="kpi-label">Orçamento Utilizado (%)</div>
+    </div>
+  </section>
+
+  <!-- Seção que contém os gráficos do dashboard -->
+  <section class="charts-grid" aria-label="Gráficos de desempenho">
+    <!-- Cada canvas é um gráfico diferente que será criado via Chart.js -->
+    <canvas id="graficoDesempenho" role="img" aria-label="Gráfico de barras comparando nota antes e depois do treinamento"></canvas>
+    <canvas id="graficoAcessos" role="img" aria-label="Gráfico de linha mostrando acessos por dia, semana e mês"></canvas>
+    <canvas id="graficoConteudo" role="img" aria-label="Gráfico de pizza com tipos de conteúdo acessados"></canvas>
+    <canvas id="graficoSetor" role="img" aria-label="Gráfico de barras horizontais mostrando adesão por setor"></canvas>
+  </section>
+</main>
+
+<!-- Rodapé que exibe a última data de atualização dos dados -->
+<footer>
+  Última atualização: <span id="dataAtualizacao">–</span>
+</footer>
+
+<script>
+// URL da planilha Google Sheets pública em formato JSON via OpenSheet (API simplificada)
+const url = 'https://opensheet.elk.sh/1woSDU28xltH6qhdPm6OFNXO-PVu3GajkyDMRJli16FU/Dashboard';
+
+// Função para formatar a data atual no formato dia/mês/ano abreviado (ex: 15/jun/2025)
+function formatarDataAtualizacao() {
+  const hoje = new Date();
+  return hoje.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+// Função principal que carrega os dados da planilha e atualiza o dashboard
+async function carregarDadosDashboard() {
+  try {
+    // Busca os dados JSON da URL da planilha
+    const response = await fetch(url);
+    const dadosArray = await response.json();
+
+    // Transformar array de objetos em um objeto chave-valor para facilitar o acesso
+    const dados = {};
+    dadosArray.forEach(item => {
+      // Identifica o nome do indicador e o valor correspondente
+      const chave = item.Indicador || item.indicador || item.INDICADOR;
+      let valor = item.Valor || item.valor || item.VALOR;
+
+      // Tenta converter valor para número, se possível
+      if (valor !== undefined) {
+        const num = Number(valor);
+        valor = isNaN(num) ? valor : num;
+      }
+
+      if (chave) dados[chave] = valor; // Guarda no objeto dados
+    });
+
+    // Atualiza os valores nos elementos HTML dos KPIs
+    document.getElementById('colaboradores').textContent = dados.colaboradoresTreinados ?? '–';
+    document.getElementById('treinamentos').textContent = dados.treinamentosOferecidos ?? '–';
+    document.getElementById('horas').textContent = dados.horasPorColaborador ?? '–';
+    document.getElementById('conclusao').textContent = (dados.taxaConclusaoPercent ?? 0) + '%';
+    document.getElementById('nps').textContent = dados.npsTreinamento ?? '–';
+    document.getElementById('orcamento').textContent = (dados.orcamentoUtilizadoPercent ?? 0) + '%';
+
+    // Atualiza a data no rodapé
+    document.getElementById('dataAtualizacao').textContent = formatarDataAtualizacao();
+
+    // --- Criação dos gráficos usando Chart.js ---
+
+    // Gráfico de barras comparando notas antes e depois do treinamento
+    new Chart(document.getElementById('graficoDesempenho'), {
+      type: 'bar',
+      data: {
+        labels: ['Antes', 'Depois'], // Eixo X
+        datasets: [{
+          label: 'Nota Média',
+          data: [dados.notaPreTreinamento ?? 0, dados.notaPosTreinamento ?? 0], // Dados das barras
+          backgroundColor: ['#dc3545', '#198754'] // Cores das barras (vermelho e verde)
+        }]
+      },
+      options: {
+        responsive: true, // Gráfico se adapta à tela
+        plugins: {
+          legend: { display: false }, // Esconde legenda
+          title: {
+            display: true,
+            text: 'Desempenho Antes e Depois do Treinamento', // Título do gráfico
+            font: { size: 18, weight: '600' },
+            padding: { bottom: 10 }
+          },
+          tooltip: { enabled: true } // Tooltip aparece ao passar mouse
+        },
+        scales: {
+          y: { beginAtZero: true, max: 10, title: { display: true, text: 'Nota (0 a 10)' } },
+          x: { title: { display: true, text: 'Período' } }
+        }
+      }
+    });
+
+    // Gráfico de linha mostrando acessos no dia, semana e mês
+    new Chart(document.getElementById('graficoAcessos'), {
+      type: 'line',
+      data: {
+        labels: ['Dia', 'Semana', 'Mês'],
+        datasets: [{
+          label: 'Acessos',
+          data: [dados.acessosDia || 0, dados.acessosSemana || 0, dados.acessosMes || 0],
+          borderColor: '#0d6efd', // Cor da linha azul
+          backgroundColor: 'rgba(13, 110, 253, 0.2)', // Preenchimento transparente azul
+          fill: true, // Preenche área abaixo da linha
+          tension: 0.3, // Curvatura da linha
+          pointRadius: 6, // Tamanho dos pontos
+          pointHoverRadius: 8 // Tamanho dos pontos ao passar mouse
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Acessos por Período',
+            font: { size: 18, weight: '600' },
+            padding: { bottom: 10 }
+          },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'Número de Acessos' } },
+          x: { title: { display: true, text: 'Período' } }
+        }
+      }
+    });
+
+    // Gráfico de pizza mostrando tipos de conteúdo acessados
+    new Chart(document.getElementById('graficoConteudo'), {
+      type: 'pie',
+      data: {
+        labels: ['Vídeo', 'Leitura', 'Workshop'],
+        datasets: [{
+          data: [dados.acessosVideo || 0, dados.acessosLeitura || 0, dados.acessosWorkshop || 0],
+          backgroundColor: ['#ffc107', '#20c997', '#6f42c1'], // Cores amarelo, verde e roxo
+          hoverOffset: 30 // Distância do segmento ao passar o mouse
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 14, weight: '600' } } },
+          title: {
+            display: true,
+            text: 'Tipos de Conteúdo Acessados',
+            font: { size: 18, weight: '600' },
+            padding: { bottom: 10 }
+          },
+          tooltip: { enabled: true }
+        }
+      }
+    });
+
+    // Gráfico de barras horizontais mostrando adesão por setor
+    new Chart(document.getElementById('graficoSetor'), {
+      type: 'bar',
+      data: {
+        labels: ['RH', 'TI', 'Financeiro', 'Comercial', 'Operações'],
+        datasets: [{
+          label: 'Adesão (%)',
+          data: [
+            dados.adesaoRH || 0,
+            dados.adesaoTI || 0,
+            dados.adesaoFinanceiro || 0,
+            dados.adesaoComercial || 0,
+            dados.adesaoOperacoes || 0
+          ],
+          backgroundColor: '#6610f2' // Cor roxa para as barras
+        }]
+      },
+      options: {
+        responsive: true,
+        indexAxis: 'y', // Gráfico horizontal
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Adesão por Setor (%)',
+            font: { size: 18, weight: '600' },
+            padding: { bottom: 10 }
+          },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          x: { beginAtZero: true, max: 100, title: { display: true, text: 'Percentual (%)' } },
+          y: { title: { display: true, text: 'Setores' } }
+        }
+      }
+    });
+
+  } catch (error) {
+    // Caso dê erro ao buscar ou processar os dados
+    console.error('Erro ao carregar dados:', error);
+    alert('Não foi possível carregar os dados da planilha. Verifique se ela está pública e com os nomes corretos.');
+  }
+}
+
+// Quando a página carregar, chama a função para carregar e mostrar os dados no dashboard
+window.onload = carregarDadosDashboard;
+</script>
+
+</body>
+</html>
