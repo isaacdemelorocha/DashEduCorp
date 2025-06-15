@@ -21,6 +21,7 @@ Este projeto apresenta um **dashboard de visualização de dados** focado em mé
 - [Bootstrap 5.3](https://getbootstrap.com/)
 - [Chart.js](https://www.chartjs.org/)
 - Google Sheets (como fonte pública de dados JSON via [OpenSheet](https://opensheet.elk.sh/))
+  -> Acesse a Planilha em : https://docs.google.com/spreadsheets/d/1woSDU28xltH6qhdPm6OFNXO-PVu3GajkyDMRJli16FU/edit?usp=sharing
 
 ---
 
